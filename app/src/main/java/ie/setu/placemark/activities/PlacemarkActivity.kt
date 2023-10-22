@@ -24,14 +24,13 @@ class PlacemarkActivity : AppCompatActivity() {
     var placemark = PlacemarkModel()
     lateinit var app: MainApp
     private lateinit var imageIntentLauncher : ActivityResultLauncher<Intent>
-    val IMAGE_REQUEST = 1
     private lateinit var mapIntentLauncher : ActivityResultLauncher<Intent>
-    // var location = Location(52.245696, -7.139102, 15f)
+    var edit = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var edit = false
+        edit = false
 
         binding = ActivityPlacemarkBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -54,6 +53,7 @@ class PlacemarkActivity : AppCompatActivity() {
             if (placemark.image != Uri.EMPTY) {
                 binding.chooseImage.setText(R.string.change_placemark_image)
             }
+
         }
 
         binding.btnAdd.setOnClickListener() {
@@ -70,12 +70,13 @@ class PlacemarkActivity : AppCompatActivity() {
                 }
             }
             i("add Button Pressed: $placemark")
+
             setResult(RESULT_OK)
             finish()
         }
 
         binding.chooseImage.setOnClickListener {
-            showImagePicker(imageIntentLauncher)
+            showImagePicker(imageIntentLauncher,this)
         }
 
         binding.placemarkLocation.setOnClickListener {
@@ -92,17 +93,21 @@ class PlacemarkActivity : AppCompatActivity() {
 
         registerImagePickerCallback()
         registerMapCallback()
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_placemark, menu)
+        if (edit) menu.getItem(0).isVisible = true
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.item_delete -> {
+                setResult(99)
+                app.placemarks.delete(placemark)
+                finish()
+            }
             R.id.item_cancel -> {
                 finish()
             }
@@ -118,7 +123,12 @@ class PlacemarkActivity : AppCompatActivity() {
                     RESULT_OK -> {
                         if (result.data != null) {
                             i("Got Result ${result.data!!.data}")
-                            placemark.image = result.data!!.data!!
+
+                            val image = result.data!!.data!!
+                            contentResolver.takePersistableUriPermission(image,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            placemark.image = image
+
                             Picasso.get()
                                 .load(placemark.image)
                                 .into(binding.placemarkImage)

@@ -8,7 +8,7 @@ import ie.setu.placemark.databinding.CardPlacemarkBinding
 import ie.setu.placemark.models.PlacemarkModel
 
 interface PlacemarkListener {
-    fun onPlacemarkClick(placemark: PlacemarkModel)
+    fun onPlacemarkClick(placemark: PlacemarkModel, position : Int)
 }
 
 class PlacemarkAdapter constructor(private var placemarks: List<PlacemarkModel>,
@@ -36,7 +36,7 @@ class PlacemarkAdapter constructor(private var placemarks: List<PlacemarkModel>,
             binding.placemarkTitle.text = placemark.title
             binding.description.text = placemark.description
             Picasso.get().load(placemark.image).resize(200,200).into(binding.imageIcon)
-            binding.root.setOnClickListener { listener.onPlacemarkClick(placemark) }
+            binding.root.setOnClickListener { listener.onPlacemarkClick(placemark,adapterPosition) }
         }
     }
 }
