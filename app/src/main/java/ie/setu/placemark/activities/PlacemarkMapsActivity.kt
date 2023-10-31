@@ -7,6 +7,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.squareup.picasso.Picasso
 import ie.setu.placemark.databinding.ActivityPlacemarkMapsBinding
 import ie.setu.placemark.databinding.ContentPlacemarkMapsBinding
 import ie.setu.placemark.main.MainApp
@@ -75,8 +76,12 @@ class PlacemarkMapsActivity : AppCompatActivity(), GoogleMap.OnMarkerClickListen
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        contentBinding.currentTitle.text = marker.title
-
+        //val placemark = marker.tag as PlacemarkModel
+        val tag = marker.tag as Long
+        val placemark = app.placemarks.findById(tag)
+        contentBinding.currentTitle.text = placemark!!.title
+        contentBinding.currentDescription.text = placemark.description
+        Picasso.get().load(placemark.image).into(contentBinding.currentImage)
         return false
     }
 }
